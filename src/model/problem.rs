@@ -1,9 +1,11 @@
 use byte_unit::Byte;
 use chrono::Duration;
 
-use super::TestCase;
+use crate::model::{Language, TestCase};
 
 pub struct Problem {
+    pub checker_path: String,
+    pub checker_language: Language,
     pub time_limit: Duration,
     pub memory_limit: Byte,
     pub test_cases: Vec<TestCase>,
