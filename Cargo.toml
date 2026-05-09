@@ -7,4 +7,8 @@ edition = "2024"
 byte-unit = "5.2.0"
 chrono = { version = "0.4.44", features = ["serde"] }
 color-eyre = "0.6.5"
+config = { version = "0.15.22", default-features = false }
+lapin = "4.7.2"
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.52.3", features = ["full"] }
 uuid = { version = "1.23.1", features = ["v4", "fast-rng"] }
