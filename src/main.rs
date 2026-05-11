@@ -12,7 +12,5 @@ async fn main() -> color_eyre::Result<()> {
 
     queue::connect().await?;
 
-    println!("Hello, world!");
-
     Ok(())
 }

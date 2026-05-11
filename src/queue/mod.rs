@@ -1,9 +1,8 @@
 mod config;
 mod consume;
 
-use lapin::{
-    Connection, ConnectionProperties, message::DeliveryResult, options::QueueDeclareOptions,
-};
+use futures_lite::StreamExt;
+use lapin::{Connection, ConnectionProperties, options::QueueDeclareOptions};
 
 pub use config::*;
 use consume::*;
@@ -31,7 +30,7 @@ pub async fn connect() -> color_eyre::Result<()> {
         Default::default(),
     );
 
-    let consumer = channel
+    let mut consumer = channel
         .basic_consume(
             config.task_queue.as_str().into(),
             Uuid::new_v4().to_string().into(),
@@ -39,24 +38,11 @@ pub async fn connect() -> color_eyre::Result<()> {
             Default::default(),
         )
         .await?;
-    consumer.set_delegate(move |delivery: DeliveryResult| async move {
-        let delivery = match delivery {
-            Ok(Some(delivery)) => delivery,
-            Ok(None) => return,
-            Err(error) => {
-                tracing::error!(?error, "failed to consume message");
-                return;
-            }
-        };
-
-        if let Err(error) = consume(&delivery.data).await {
-            tracing::error!(?error, "failed to process data");
-        };
-
-        if let Err(error) = delivery.ack(Default::default()).await {
-            tracing::error!(?error, "failed to ack message");
-        }
-    });
+    while let Some(delivery) = consumer.next().await {
+        tracing::info!(?delivery, "received message");
+        let delivery = delivery?;
+        consume(&delivery.data).await?;
+    }
 
     Ok(())
 }
