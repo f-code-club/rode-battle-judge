@@ -1,4 +1,5 @@
 mod config;
+mod consume;
 
 use lapin::{Connection, ConnectionProperties};
 
