@@ -41,7 +41,10 @@ pub async fn connect() -> color_eyre::Result<()> {
     while let Some(delivery) = consumer.next().await {
         tracing::info!(?delivery, "received message");
         let delivery = delivery?;
+
         consume(&delivery.data).await?;
+
+        delivery.ack(Default::default()).await?;
     }
 
     Ok(())
