@@ -3,6 +3,7 @@ use chrono::Duration;
 
 use crate::model::{Language, TestCase};
 
+#[derive(Debug)]
 pub struct Problem {
     pub checker_language: Language,
     pub checker_path: String,
