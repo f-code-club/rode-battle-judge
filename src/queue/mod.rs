@@ -24,11 +24,13 @@ pub async fn connect() -> color_eyre::Result<()> {
     .await?;
 
     let channel = connection.create_channel().await?;
-    let _queue = channel.queue_declare(
-        config.task_queue.as_str().into(),
-        QueueDeclareOptions::durable(),
-        Default::default(),
-    );
+    let _queue = channel
+        .queue_declare(
+            config.task_queue.as_str().into(),
+            QueueDeclareOptions::durable(),
+            Default::default(),
+        )
+        .await?;
 
     let mut consumer = channel
         .basic_consume(
