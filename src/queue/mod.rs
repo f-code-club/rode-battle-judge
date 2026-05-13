@@ -2,7 +2,10 @@ mod config;
 mod consume;
 
 use futures_lite::StreamExt;
-use lapin::{Connection, ConnectionProperties, options::QueueDeclareOptions};
+use lapin::{
+    Connection, ConnectionProperties,
+    options::{BasicNackOptions, QueueDeclareOptions},
+};
 
 pub use config::*;
 use consume::*;
@@ -44,9 +47,18 @@ pub async fn connect() -> color_eyre::Result<()> {
         tracing::info!(?delivery, "received message");
         let delivery = delivery?;
 
-        consume(&delivery.data).await?;
+        match consume(&delivery.data).await {
+            Err(error) => {
+                tracing::error!(?error, "failed to process message");
 
-        delivery.ack(Default::default()).await?;
+                let opt = BasicNackOptions {
+                    requeue: !error.is::<uuid::Error>(),
+                    ..Default::default()
+                };
+                delivery.nack(opt).await?
+            }
+            _ => delivery.ack(Default::default()).await?,
+        };
     }
 
     Ok(())
