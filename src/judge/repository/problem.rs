@@ -8,6 +8,14 @@ pub async fn get(executer: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option
         Problem,
         r#"
             SELECT
+                COALESCE(
+                    (
+                        SELECT ARRAY_AGG(pl.language)
+                        FROM problem_languages pl
+                        WHERE pl.problem_id = $1
+                    ),
+                    ARRAY[]::language[]
+                ) as "languages!:_",
                 content,
                 checker_language as "checker_language:_",
                 checker_path,
@@ -17,7 +25,7 @@ pub async fn get(executer: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option
                     SELECT ARRAY_AGG(t.input_path)
                     FROM test_cases t
                     WHERE t.problem_id = $1
-                ) AS test_cases
+                ) as test_cases
             FROM problems
             WHERE id = $1
         "#,
