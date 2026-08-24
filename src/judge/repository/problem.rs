@@ -8,6 +8,7 @@ pub async fn get(executer: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option
         Problem,
         r#"
             SELECT
+                content,
                 checker_language as "checker_language:_",
                 checker_path,
                 time_limit,
