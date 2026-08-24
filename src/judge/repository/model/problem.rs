@@ -1,10 +1,9 @@
-use std::time::Duration;
-
 use super::Language;
 
 pub struct Problem {
-    pub checker_language: Language,
-    pub checker_path: String,
-    pub time_limit: Duration,
-    pub memory_limit: i32,
+    pub checker_language: Option<Language>,
+    pub checker_path: Option<String>,
+    pub time_limit: Option<i32>,
+    pub memory_limit: Option<i32>,
+    pub test_cases: Option<Vec<String>>,
 }

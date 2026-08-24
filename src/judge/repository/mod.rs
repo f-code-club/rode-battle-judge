@@ -1,3 +1,3 @@
 pub mod model;
+pub mod problem;
 pub mod submission;
-pub mod test_case;
