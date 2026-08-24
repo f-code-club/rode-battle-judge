@@ -1,4 +1,3 @@
-
-mod task;
-mod service;
 mod repository;
+mod service;
+mod task;

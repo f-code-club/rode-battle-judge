@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 mod language;
 mod problem;
 mod submission;
