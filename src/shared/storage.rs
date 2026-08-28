@@ -3,7 +3,7 @@ use std::{env, sync::Arc};
 use aws_sdk_s3::Client;
 use moka::future::Cache;
 
-const BUCKET_ENV: &str = "s3_bucket";
+const BUCKET_ENV: &str = "S3_BUCKET";
 const CACHE_SIZE: u64 = 1024 * 1024 * 1024; // 1GB
 
 pub struct Storage {
