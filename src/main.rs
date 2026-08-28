@@ -1,6 +1,4 @@
-pub mod model;
-pub mod queue;
-pub mod repository;
+mod judge;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
@@ -9,8 +7,6 @@ async fn main() -> color_eyre::Result<()> {
         .pretty()
         .with_timer(tracing_subscriber::fmt::time::ChronoLocal::rfc_3339())
         .init();
-
-    queue::connect().await?;
 
     Ok(())
 }

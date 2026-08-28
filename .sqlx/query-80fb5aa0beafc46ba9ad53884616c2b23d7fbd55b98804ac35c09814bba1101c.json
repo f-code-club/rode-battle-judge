@@ -1,0 +1,123 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                COALESCE(\n                    (\n                        SELECT ARRAY_AGG(pl.language)\n                        FROM problem_languages pl\n                        WHERE pl.problem_id = $1\n                    ),\n                    ARRAY[]::language[]\n                ) as \"languages!:_\",\n                content,\n                checker_language as \"checker_language:_\",\n                checker_path,\n                time_limit,\n                memory_limit,\n                (\n                    SELECT ARRAY_AGG(t.input_path)\n                    FROM test_cases t\n                    WHERE t.problem_id = $1\n                ) as test_cases\n            FROM problems\n            WHERE id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "languages!:_",
+        "type_info": {
+          "Custom": {
+            "name": "language[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "language",
+                  "kind": {
+                    "Enum": [
+                      "rust",
+                      "cpp",
+                      "python",
+                      "java",
+                      "html"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "content",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "problems",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "checker_language:_",
+        "type_info": {
+          "Custom": {
+            "name": "language",
+            "kind": {
+              "Enum": [
+                "rust",
+                "cpp",
+                "python",
+                "java",
+                "html"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "problems",
+            "name": "checker_language"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "checker_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "problems",
+            "name": "checker_path"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "time_limit",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "problems",
+            "name": "time_limit"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "memory_limit",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "problems",
+            "name": "memory_limit"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "test_cases",
+        "type_info": "TextArray",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null
+    ]
+  },
+  "hash": "80fb5aa0beafc46ba9ad53884616c2b23d7fbd55b98804ac35c09814bba1101c"
+}

@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE submissions\n            SET\n                verdict = $2,\n                score = $3,\n                updated_at = now()\n            WHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "verdict",
+            "kind": {
+              "Enum": [
+                "accepted",
+                "wrong_answer",
+                "time_limit_exceeded",
+                "compilation_error",
+                "memory_limit_exceeded",
+                "runtime_error",
+                "idle_time_limit_exceeded"
+              ]
+            }
+          }
+        },
+        "Float4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "42052a25107c2bb6675bdc9c9cfddd3d2c386d0e44b6a29745c008305131563c"
+}

@@ -1,11 +1,10 @@
 use uuid::Uuid;
 
-use crate::model::Language;
+use super::Language;
 
-#[derive(Debug)]
 pub struct Submission {
     pub problem_id: Uuid,
-    pub team_id: Uuid,
+    pub account_id: Uuid,
     pub language: Language,
     pub code: String,
 }
