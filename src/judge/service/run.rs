@@ -1,11 +1,12 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::judge::repository::{model::Language, problem, submission};
+use crate::{
+    judge::repository::{model::Language, problem, submission},
+    shared::Storage,
+};
 
-use super::model::Metrics;
-
-pub async fn run(pool: &PgPool, id: Uuid) -> color_eyre::Result<Metrics> {
+pub async fn run(storage: &Storage, pool: &PgPool, id: Uuid) -> color_eyre::Result<()> {
     let sub = submission::get(pool, id)
         .await?
         .ok_or(color_eyre::eyre::anyhow!("invalid submission id"))?;

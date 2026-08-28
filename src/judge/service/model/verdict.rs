@@ -7,8 +7,3 @@ pub enum Verdict {
     RuntimeError,
     IdleTimeLimitExceeded,
 }
-
-pub struct Metrics {
-    pub verdict: Verdict,
-    pub score: u32,
-}

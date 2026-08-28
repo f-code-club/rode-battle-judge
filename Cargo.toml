@@ -12,6 +12,8 @@ color-eyre = "0.6.5"
 config = { version = "0.15.22", default-features = false }
 futures-lite = "2.6.1"
 html-renderer = "1.0.0"
+image = "0.25.10"
+image-compare = "0.5.0"
 lapin = "4.7.2"
 moka = { version = "0.12.16", features = ["future"] }
 serde = { version = "1.0.228", features = ["derive"] }
