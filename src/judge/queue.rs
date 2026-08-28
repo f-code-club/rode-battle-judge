@@ -8,20 +8,21 @@ use uuid::Uuid;
 
 use crate::{
     judge::{config::Config, service},
-    shared::database,
+    shared::{Storage, database},
 };
 
 pub struct Queue {
     pub task_queue: String,
     pub channel: Channel,
     pub pool: PgPool,
+    pub storage: Storage,
 }
 
 impl Queue {
     pub async fn new() -> color_eyre::Result<Self> {
         let cfg = Config::new()?;
 
-        let (channel, pool) = tokio::try_join!(
+        let (channel, pool, storage) = tokio::try_join!(
             async {
                 let connection = Connection::connect(
                     &cfg.amqp_url,
@@ -40,13 +41,15 @@ impl Queue {
 
                 Ok(channel)
             },
-            database::connect()
+            database::connect(),
+            Storage::new()
         )?;
 
         Ok(Self {
             task_queue: cfg.task_queue,
             channel,
             pool,
+            storage,
         })
     }
 
@@ -81,7 +84,7 @@ impl Queue {
                 }
             };
 
-            match service::run(&self.pool, id).await {
+            match service::run(&self.storage, &self.pool, id).await {
                 Err(error) => {
                     tracing::error!(?error, "failed to process message");
 
