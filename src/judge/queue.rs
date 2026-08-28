@@ -6,7 +6,10 @@ use lapin::{
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::judge::{config::Config, service};
+use crate::{
+    judge::{config::Config, service},
+    shared::database,
+};
 
 pub struct Queue {
     pub task_queue: String,
@@ -35,13 +38,9 @@ impl Queue {
                     )
                     .await;
 
-                Ok::<_, color_eyre::Report>(channel)
+                Ok(channel)
             },
-            async {
-                PgPool::connect(&cfg.database_url)
-                    .await
-                    .map_err(color_eyre::Report::from)
-            }
+            database::connect()
         )?;
 
         Ok(Self {

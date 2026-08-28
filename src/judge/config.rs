@@ -15,8 +15,6 @@ pub struct Config {
 
     #[serde(default = "default_task_queue")]
     pub task_queue: String,
-
-    pub database_url: String,
 }
 
 impl Config {
