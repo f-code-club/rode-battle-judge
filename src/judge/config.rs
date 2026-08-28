@@ -15,4 +15,21 @@ pub struct Config {
 
     #[serde(default = "default_task_queue")]
     pub task_queue: String,
+
+    pub database_url: String,
+}
+
+impl Config {
+    pub fn new() -> color_eyre::Result<Self> {
+        let cfg = ::config::Config::builder()
+            .add_source(
+                ::config::Environment::default()
+                    .try_parsing(true)
+                    .separator("__"),
+            )
+            .build()?
+            .try_deserialize()?;
+
+        Ok(cfg)
+    }
 }

@@ -8,5 +8,8 @@ async fn main() -> color_eyre::Result<()> {
         .with_timer(tracing_subscriber::fmt::time::ChronoLocal::rfc_3339())
         .init();
 
+    let queue = judge::Queue::new().await?;
+    queue.listen().await?;
+
     Ok(())
 }
