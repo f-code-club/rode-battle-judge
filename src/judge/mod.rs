@@ -1,3 +1,4 @@
+mod queue;
 mod repository;
 mod service;
-mod task;
+mod config;
