@@ -45,6 +45,8 @@ impl Queue {
             Storage::new()
         )?;
 
+        tracing::info!("queue connected");
+
         Ok(Self {
             task_queue: cfg.task_queue,
             channel,
@@ -54,6 +56,8 @@ impl Queue {
     }
 
     pub async fn listen(&self) -> color_eyre::Result<()> {
+        tracing::info!("waiting for task");
+
         let mut consumer = self
             .channel
             .basic_consume(
