@@ -44,8 +44,6 @@ impl Storage {
     }
 
     pub async fn download(&self, path: String) -> color_eyre::Result<Arc<Vec<u8>>> {
-        if !self.cache.contains_key(&path) {}
-
         match self.cache.get(&path).await {
             Some(data) => Ok(data),
             None => {
