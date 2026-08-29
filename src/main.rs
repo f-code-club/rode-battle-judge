@@ -1,4 +1,5 @@
 mod judge;
+mod shared;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
@@ -7,6 +8,9 @@ async fn main() -> color_eyre::Result<()> {
         .pretty()
         .with_timer(tracing_subscriber::fmt::time::ChronoLocal::rfc_3339())
         .init();
+
+    let queue = judge::Queue::new().await?;
+    queue.listen().await?;
 
     Ok(())
 }
