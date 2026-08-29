@@ -1,5 +1,6 @@
 mod judge;
 mod shared;
+mod compiler;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {

@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 aws-config = { version = "1.11.0", features = ["behavior-version-latest"] }
 aws-sdk-s3 = { version = "1.144.0", features = ["behavior-version-latest"] }
+axum = { version = "0.8.9", features = ["macros"] }
 byte-unit = "5.2.0"
 chrono = { version = "0.4.44", features = ["serde"] }
 code-executor = "1.1.0"
@@ -23,4 +24,6 @@ sqlx = { version = "0.9.0", features = ["runtime-tokio", "postgres", "chrono", "
 tokio = { version = "1.52.3", features = ["full"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["fmt", "chrono", "env-filter"] }
+utoipa = "5.5.0"
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 uuid = { version = "1.23.1", features = ["v4", "fast-rng"] }
