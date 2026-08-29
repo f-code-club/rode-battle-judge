@@ -1,6 +1,6 @@
 #[utoipa::path(
     get,
-    path = "/",
+    path = "/health",
     responses(
         (status = StatusCode::OK, description = "Return ok", body = &'static str)
     )
