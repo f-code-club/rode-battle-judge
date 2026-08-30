@@ -1,3 +1,4 @@
+mod compiler;
 mod judge;
 mod shared;
 
@@ -10,7 +11,8 @@ async fn main() -> color_eyre::Result<()> {
         .init();
 
     let queue = judge::Queue::new().await?;
-    queue.listen().await?;
+
+    tokio::try_join!(queue.listen(), compiler::run())?;
 
     Ok(())
 }
