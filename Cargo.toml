@@ -9,7 +9,7 @@ aws-sdk-s3 = { version = "1.144.0", features = ["behavior-version-latest"] }
 axum = { version = "0.8.9", features = ["macros"] }
 byte-unit = "5.2.0"
 chrono = { version = "0.4.44", features = ["serde"] }
-code-executor = "1.1.0"
+code-executor = { git = "https://github.com/f-code-club/code-executor"}
 color-eyre = "0.6.5"
 config = { version = "0.15.22", default-features = false }
 futures-lite = "2.6.1"
