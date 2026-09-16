@@ -7,6 +7,7 @@ use crate::compiler::error::{self, ApiError, ApiResult, ResultExt};
 
 #[derive(Debug, ToSchema, Deserialize)]
 #[schema(description = "Programming language supported by the compiler")]
+#[serde(rename_all = "snake_case")]
 pub enum Language {
     Rust,
     Cpp,
