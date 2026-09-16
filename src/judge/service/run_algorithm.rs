@@ -40,7 +40,7 @@ pub async fn run_algorithm(
             content: sub.code.as_bytes(),
             language: sub.language.into(),
         })
-        .time_limit(Duration::from_secs(time_limit as u64))
+        .time_limit(Duration::from_millis(time_limit as u64))
         .resource(Resource {
             memory: Byte::MEGABYTE
                 .multiply(memory_limit as usize)
