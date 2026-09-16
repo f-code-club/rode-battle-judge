@@ -1469,8 +1469,7 @@ dependencies = [
 [[package]]
 name = "code-executor"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af91ae8b06a491cd472d4455d97efb35178a09fb9451a770bd8ff4ef762ae8f6"
+source = "git+https://github.com/f-code-club/code-executor#feec81cf1bffe9d89ea821efd2ab63ce76935eb3"
 dependencies = [
  "bon",
  "byte-unit",
