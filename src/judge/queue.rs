@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use futures_lite::StreamExt;
 use lapin::{
     Channel, Connection, ConnectionProperties,
@@ -11,11 +13,14 @@ use crate::{
     shared::{Storage, database},
 };
 
+const MAX_RETRIES: u64 = 3;
+
 pub struct Queue {
     pub task_queue: String,
     pub channel: Channel,
     pub pool: PgPool,
     pub storage: Storage,
+    pub retry_cnt: HashMap<Uuid, u64>,
 }
 
 impl Queue {
@@ -52,10 +57,11 @@ impl Queue {
             channel,
             pool,
             storage,
+            retry_cnt: HashMap::new(),
         })
     }
 
-    pub async fn listen(&self) -> color_eyre::Result<()> {
+    pub async fn listen(&mut self) -> color_eyre::Result<()> {
         tracing::info!("waiting for task");
 
         let mut consumer = self
@@ -84,9 +90,20 @@ impl Queue {
                         })
                         .await?;
 
-                    return Ok(());
+                    continue;
                 }
             };
+            let cnt = self.retry_cnt.entry(id).or_insert(0);
+            if *cnt == MAX_RETRIES {
+                delivery
+                    .nack(BasicNackOptions {
+                        requeue: false,
+                        ..Default::default()
+                    })
+                    .await?;
+                continue;
+            }
+            *cnt += 1;
 
             match service::run(&self.storage, &self.pool, id).await {
                 Err(error) => {
