@@ -24,7 +24,7 @@ pub struct Request {
     #[schema(example = "fn main() { println!(\"Hello, world!\"); }")]
     pub code: String,
 
-    #[schema(example = "Rust")]
+    #[schema(example = "rust")]
     pub language: Language,
 }
 
