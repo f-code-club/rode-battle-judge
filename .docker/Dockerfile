@@ -20,7 +20,7 @@ RUN cargo build --release
 FROM debian:stable AS application
 
 RUN apt-get update \
-    && apt-get install libssl3 ca-certificates -y \
+    && apt-get install libssl3 ca-certificates chromium openjdk-17-jdk build-essential python3 python-is-python3 libgbm-dev libxkbcommon-x11-0 -y \
     && apt-get clean
 
 WORKDIR /app
