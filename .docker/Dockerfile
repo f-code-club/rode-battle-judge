@@ -1,3 +1,4 @@
+ARG BASE_IMAGE=ghcr.io/f-code-club/rode-battle/judge-base:latest
 FROM lukemathwalker/cargo-chef:latest-rust-latest AS chef
 WORKDIR /app
 
@@ -21,11 +22,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
     cargo build --release
 
-FROM debian:stable AS application
-
-RUN apt-get update \
-    && apt-get install libssl3 ca-certificates chromium openjdk-21-jdk build-essential python3 python-is-python3 libgbm-dev libxkbcommon-x11-0 -y \
-    && apt-get clean
+FROM ${BASE_IMAGE} AS application
 
 WORKDIR /app
 
