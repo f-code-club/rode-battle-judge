@@ -21,11 +21,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
     cargo build --release
 
-FROM debian:stable AS application
-
-RUN apt-get update \
-    && apt-get install libssl3 ca-certificates chromium openjdk-21-jdk build-essential python3 python-is-python3 libgbm-dev libxkbcommon-x11-0 -y \
-    && apt-get clean
+FROM ghcr.io/f-code-club/rode-battle/judge-base:latest AS application
 
 WORKDIR /app
 

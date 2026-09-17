@@ -1,0 +1,5 @@
+FROM debian:stable
+
+RUN apt-get update \
+    && apt-get install libssl3 ca-certificates chromium openjdk-21-jdk build-essential python3 python-is-python3 rustc libgbm-dev libxkbcommon-x11-0 -y \
+    && apt-get clean
