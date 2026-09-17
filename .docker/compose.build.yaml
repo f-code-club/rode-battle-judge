@@ -5,6 +5,6 @@ services:
       context: ../
       dockerfile: ./.docker/Dockerfile
       cache_from:
-        - type=local,src=/tmp/.buildx-cache
+        - type=gha
       cache_to:
-        - type=local,dest=/tmp/.buildx-cache,mode=max
+        - type=gha,mode=max
