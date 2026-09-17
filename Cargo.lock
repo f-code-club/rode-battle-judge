@@ -2582,8 +2582,7 @@ dependencies = [
 [[package]]
 name = "html-renderer"
 version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b36aef5e30b915507344dddf4fd941b0aa9c1755060710025c03808578516d0b"
+source = "git+https://github.com/f-code-club/html-renderer#7c9aedcf94780b9d3bd622f2a850c1f185e7951f"
 dependencies = [
  "chromiumoxide",
  "futures",
