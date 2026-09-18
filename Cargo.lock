@@ -2582,7 +2582,7 @@ dependencies = [
 [[package]]
 name = "html-renderer"
 version = "1.0.0"
-source = "git+https://github.com/f-code-club/html-renderer#7c9aedcf94780b9d3bd622f2a850c1f185e7951f"
+source = "git+https://github.com/f-code-club/html-renderer#e9b8e1f8c466f919ab91876abbe5a2e780f5681a"
 dependencies = [
  "chromiumoxide",
  "futures",
