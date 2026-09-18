@@ -1,8 +1,18 @@
 FROM debian:stable
 
 RUN apt-get update \
-    && apt-get install libssl3 ca-certificates chromium openjdk-21-jdk build-essential python3 python-is-python3 libgbm-dev libxkbcommon-x11-0 -y \
-    && apt-get clean
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        chromium \
+        libssl3 \
+        libgbm1 \
+        libxkbcommon-x11-0 \
+        g++ \
+        python3 \
+        python-is-python3 \
+        openjdk-21-jdk-headless \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
     | sh -s -- -y --profile minimal --default-toolchain stable
