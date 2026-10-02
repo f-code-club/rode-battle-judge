@@ -27,6 +27,7 @@ pub async fn get(executer: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option
                     SELECT ARRAY_AGG(t.input)
                     FROM test_cases t
                     WHERE t.problem_id = $1
+                    ORDER BY created_at
                 ) as test_cases
             FROM problems
             WHERE id = $1
