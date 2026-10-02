@@ -24,7 +24,7 @@ pub async fn get(executer: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option
                 time_limit,
                 memory_limit,
                 (
-                    SELECT ARRAY_AGG(t.input_path)
+                    SELECT ARRAY_AGG(t.input ORDER BY t.created_at)
                     FROM test_cases t
                     WHERE t.problem_id = $1
                 ) as test_cases
