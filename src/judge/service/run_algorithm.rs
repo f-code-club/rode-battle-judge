@@ -1,21 +1,25 @@
 use std::time::Duration;
 
 use byte_unit::Byte;
-use code_executor::{Code, Judge, Resource, Verdict};
+use code_executor::{Code, Judge, Metrics, Resource, Verdict};
+use futures_lite::StreamExt;
+use sqlx::PgExecutor;
 
 use crate::{
     judge::repository::{
         self,
         model::{Problem, Submission},
+        problem,
     },
     shared::Storage,
 };
 
-pub async fn run_algorithm(
+pub async fn run_algorithm<'a>(
     storage: &Storage,
+    pool: impl PgExecutor<'a> + 'a,
     sub: Submission,
     prob: Problem,
-) -> color_eyre::Result<Verdict> {
+) -> color_eyre::Result<(Verdict, Vec<Metrics>)> {
     let checker_path = prob
         .checker_path
         .ok_or_else(|| color_eyre::eyre::anyhow!("problem missing checker"))?;
@@ -51,15 +55,25 @@ pub async fn run_algorithm(
         .await?;
     let judge = match judge.compile().await? {
         Ok(judge) => judge,
-        Err(verdict) => return Ok(verdict),
+        Err(verdict) => return Ok((verdict, vec![])),
     };
 
-    let test_cases = prob.test_cases.unwrap_or(vec![]);
-    let metrics = judge
-        .batch_run(test_cases.iter().map(|x| x.as_bytes()))
-        .await?;
+    let mut test_cases = problem::get_test_cases(pool, sub.problem_id);
+    let mut metrics_list: Vec<Metrics> = vec![];
+    let mut verdict = Verdict::Accepted;
+    while let Some(test_case) = test_cases.try_next().await? {
+        let input = test_case.input.into_bytes();
 
-    Ok(metrics.verdict)
+        let metrics = judge.run(input).await?;
+        verdict = metrics.verdict;
+
+        metrics_list.push(metrics);
+        if verdict != Verdict::Accepted {
+            break;
+        }
+    }
+
+    Ok((verdict, metrics_list))
 }
 
 impl From<repository::model::Language> for code_executor::Language {

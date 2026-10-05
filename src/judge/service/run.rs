@@ -22,7 +22,7 @@ pub async fn run(storage: &Storage, pool: &PgPool, id: Uuid) -> color_eyre::Resu
         let score = run_frontend(storage, sub, prob).await?;
         submission::update(pool, id, None, Some(score)).await?;
     } else {
-        let verdict = run_algorithm(storage, sub, prob).await?;
+        let (verdict, metrics_list) = run_algorithm(storage, pool, sub, prob).await?;
         submission::update(pool, id, Some(verdict.into()), None).await?;
     }
 

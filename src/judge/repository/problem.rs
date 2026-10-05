@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use futures_lite::Stream;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
@@ -34,10 +35,10 @@ pub async fn get(executer: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option
     .await
 }
 
-pub async fn get_test_cases(
-    executer: impl PgExecutor<'_>,
+pub fn get_test_cases<'a>(
+    executer: impl PgExecutor<'a> + 'a,
     id: Uuid,
-) -> sqlx::Result<Vec<TestCase>> {
+) -> impl Stream<Item = sqlx::Result<TestCase>> + 'a {
     sqlx::query_as!(
         TestCase,
         r#"
@@ -47,6 +48,5 @@ pub async fn get_test_cases(
         "#,
         id
     )
-    .fetch_all(executer)
-    .await
+    .fetch(executer)
 }
