@@ -19,7 +19,7 @@ pub async fn run_algorithm<'a>(
     pool: impl PgExecutor<'a> + 'a,
     sub: Submission,
     prob: Problem,
-) -> color_eyre::Result<(Verdict, Vec<Metrics>)> {
+) -> color_eyre::Result<Vec<Metrics>> {
     let checker_path = prob
         .checker_path
         .ok_or_else(|| color_eyre::eyre::anyhow!("problem missing checker"))?;
@@ -55,17 +55,24 @@ pub async fn run_algorithm<'a>(
         .await?;
     let judge = match judge.compile().await? {
         Ok(judge) => judge,
-        Err(verdict) => return Ok((verdict, vec![])),
+        Err(verdict) => {
+            return Ok(vec![Metrics {
+                verdict,
+                run_time: Duration::ZERO,
+                memory_usage: Byte::MEGABYTE,
+                stdout: vec![],
+                stderr: vec![],
+            }]);
+        }
     };
 
     let mut test_cases = problem::get_test_cases(pool, sub.problem_id);
     let mut metrics_list: Vec<Metrics> = vec![];
-    let mut verdict = Verdict::Accepted;
     while let Some(test_case) = test_cases.try_next().await? {
         let input = test_case.input.into_bytes();
 
         let metrics = judge.run(input).await?;
-        verdict = metrics.verdict;
+        let verdict = metrics.verdict;
 
         metrics_list.push(metrics);
         if verdict != Verdict::Accepted {
@@ -73,7 +80,7 @@ pub async fn run_algorithm<'a>(
         }
     }
 
-    Ok((verdict, metrics_list))
+    Ok(metrics_list)
 }
 
 impl From<repository::model::Language> for code_executor::Language {
