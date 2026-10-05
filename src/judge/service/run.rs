@@ -20,10 +20,24 @@ pub async fn run(storage: &Storage, pool: &PgPool, id: Uuid) -> color_eyre::Resu
 
     if prob.languages.contains(&Language::Html) {
         let score = run_frontend(storage, sub, prob).await?;
-        submission::update(pool, id, None, Some(score)).await?;
+
+        submission::update()
+            .executor(pool)
+            .id(id)
+            .score(score)
+            .call()
+            .await?;
     } else {
-        let verdict = run_algorithm(storage, sub, prob).await?;
-        submission::update(pool, id, Some(verdict.into()), None).await?;
+        let (verdict, run_time, memory_usage) = run_algorithm(storage, pool, id, sub, prob).await?;
+
+        submission::update()
+            .executor(pool)
+            .id(id)
+            .verdict(verdict.into())
+            .run_time(run_time.as_millis() as i32)
+            .memory_usage(memory_usage.as_u64() as i32)
+            .call()
+            .await?;
     }
 
     Ok(())
