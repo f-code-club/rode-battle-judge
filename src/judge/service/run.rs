@@ -1,6 +1,3 @@
-use std::time::Duration;
-
-use byte_unit::Byte;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -31,20 +28,7 @@ pub async fn run(storage: &Storage, pool: &PgPool, id: Uuid) -> color_eyre::Resu
             .call()
             .await?;
     } else {
-        let metrics_list = run_algorithm(storage, pool, sub, prob).await?;
-        let n = metrics_list.len();
-
-        let verdict = metrics_list[n - 1].verdict;
-        let run_time: Duration = metrics_list
-            .iter()
-            .map(|x| x.run_time)
-            .max()
-            .expect("There must be at least 1 run");
-        let memory_usage: Byte = metrics_list
-            .iter()
-            .map(|x| x.memory_usage)
-            .max()
-            .expect("There must be at least 1 run");
+        let (verdict, run_time, memory_usage) = run_algorithm(storage, pool, id, sub, prob).await?;
 
         submission::update()
             .executor(pool)

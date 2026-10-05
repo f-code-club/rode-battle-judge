@@ -52,3 +52,28 @@ pub async fn update(
 
     Ok(())
 }
+
+pub async fn add_detail(
+    executor: impl PgExecutor<'_>,
+    id: Uuid,
+    test_case_id: Uuid,
+    verdict: Verdict,
+    run_time: i32,
+    memory_usage: i32,
+) -> sqlx::Result<()> {
+    sqlx::query!(
+        r#"
+            INSERT INTO submission_details(submission_id, test_case_id, verdict, run_time, memory_usage)
+            VALUES ($1, $2, $3, $4, $5)
+        "#,
+        id,
+        test_case_id,
+        verdict as Verdict,
+        run_time,
+        memory_usage
+    )
+    .execute(executor)
+    .await?;
+
+    Ok(())
+}

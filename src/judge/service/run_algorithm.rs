@@ -1,25 +1,27 @@
 use std::time::Duration;
 
 use byte_unit::Byte;
-use code_executor::{Code, Judge, Metrics, Resource, Verdict};
+use code_executor::{Code, Judge, Resource, Verdict};
 use futures_lite::StreamExt;
-use sqlx::PgExecutor;
+use sqlx::PgPool;
+use uuid::Uuid;
 
 use crate::{
     judge::repository::{
         self,
         model::{Problem, Submission},
-        problem,
+        problem, submission,
     },
     shared::Storage,
 };
 
-pub async fn run_algorithm<'a>(
+pub async fn run_algorithm(
     storage: &Storage,
-    pool: impl PgExecutor<'a> + 'a,
+    pool: &PgPool,
+    id: Uuid,
     sub: Submission,
     prob: Problem,
-) -> color_eyre::Result<Vec<Metrics>> {
+) -> color_eyre::Result<(Verdict, Duration, Byte)> {
     let checker_path = prob
         .checker_path
         .ok_or_else(|| color_eyre::eyre::anyhow!("problem missing checker"))?;
@@ -56,31 +58,45 @@ pub async fn run_algorithm<'a>(
     let judge = match judge.compile().await? {
         Ok(judge) => judge,
         Err(verdict) => {
-            return Ok(vec![Metrics {
-                verdict,
-                run_time: Duration::ZERO,
-                memory_usage: Byte::MEGABYTE,
-                stdout: vec![],
-                stderr: vec![],
-            }]);
+            return Ok((verdict, Duration::ZERO, Byte::from_u64(0)));
         }
     };
 
     let mut test_cases = problem::get_test_cases(pool, sub.problem_id);
-    let mut metrics_list: Vec<Metrics> = vec![];
+
+    let mut transaction = pool.begin().await?;
+    let mut verdict = Verdict::Accepted;
+    let mut run_time = Duration::ZERO;
+    let mut memory_usage = Byte::from_u64(0);
     while let Some(test_case) = test_cases.try_next().await? {
         let input = test_case.input.into_bytes();
 
         let metrics = judge.run(input).await?;
-        let verdict = metrics.verdict;
+        verdict = metrics.verdict;
+        run_time = run_time.max(metrics.run_time);
+        memory_usage = memory_usage.max(metrics.memory_usage);
 
-        metrics_list.push(metrics);
+        if let Err(error) = submission::add_detail(
+            &mut *transaction,
+            id,
+            test_case.id,
+            metrics.verdict.into(),
+            metrics.run_time.as_millis() as i32,
+            metrics.memory_usage.as_u64() as i32,
+        )
+        .await
+        {
+            tracing::error!(?error, "failed to save detail");
+            break;
+        }
+
         if verdict != Verdict::Accepted {
             break;
         }
     }
+    transaction.commit().await?;
 
-    Ok(metrics_list)
+    Ok((verdict, run_time, memory_usage))
 }
 
 impl From<repository::model::Language> for code_executor::Language {
