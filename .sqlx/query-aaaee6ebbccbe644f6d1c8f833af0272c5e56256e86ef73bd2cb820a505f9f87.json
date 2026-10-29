@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO submission_details(submission_id, test_case_id, verdict, run_time, memory_usage)\n            VALUES ($1, $2, $3, $4, $5)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "verdict",
+            "kind": {
+              "Enum": [
+                "accepted",
+                "wrong_answer",
+                "time_limit_exceeded",
+                "compilation_error",
+                "memory_limit_exceeded",
+                "runtime_error",
+                "idle_time_limit_exceeded"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aaaee6ebbccbe644f6d1c8f833af0272c5e56256e86ef73bd2cb820a505f9f87"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                COALESCE(\n                    (\n                        SELECT ARRAY_AGG(pl.language)\n                        FROM problem_languages pl\n                        WHERE pl.problem_id = $1\n                    ),\n                    ARRAY[]::language[]\n                ) as \"languages!:_\",\n                content,\n                checker_language as \"checker_language:_\",\n                checker_path,\n                time_limit,\n                memory_limit,\n                (\n                    SELECT ARRAY_AGG(t.input ORDER BY t.created_at)\n                    FROM test_cases t\n                    WHERE t.problem_id = $1\n                ) as test_cases\n            FROM problems\n            WHERE id = $1\n        ",
+  "query": "\n            SELECT\n                COALESCE(\n                    (\n                        SELECT ARRAY_AGG(pl.language)\n                        FROM problem_languages pl\n                        WHERE pl.problem_id = $1\n                    ),\n                    ARRAY[]::language[]\n                ) as \"languages!:_\",\n                content,\n                checker_language as \"checker_language:_\",\n                checker_path,\n                time_limit,\n                memory_limit\n            FROM problems\n            WHERE id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -96,12 +96,6 @@
             "name": "memory_limit"
           }
         }
-      },
-      {
-        "ordinal": 6,
-        "name": "test_cases",
-        "type_info": "TextArray",
-        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -115,9 +109,8 @@
       true,
       true,
       true,
-      true,
-      null
+      true
     ]
   },
-  "hash": "15121f69c66baab84428a0c4e1ad039ac507b2f81786e03cc476a7d6e272f57d"
+  "hash": "c9546556881b7bde829d9f9398cbf2e2f3442219a46a625d66774186834ee6d3"
 }
