@@ -2,20 +2,26 @@ use std::time::Duration;
 
 use byte_unit::Byte;
 use code_executor::{Code, Judge, Resource, Verdict};
+use futures_lite::StreamExt;
+use sqlx::PgPool;
+use uuid::Uuid;
 
 use crate::{
     judge::repository::{
         self,
         model::{Problem, Submission},
+        problem, submission,
     },
     shared::Storage,
 };
 
 pub async fn run_algorithm(
     storage: &Storage,
+    pool: &PgPool,
+    id: Uuid,
     sub: Submission,
     prob: Problem,
-) -> color_eyre::Result<Verdict> {
+) -> color_eyre::Result<(Verdict, Duration, Byte)> {
     let checker_path = prob
         .checker_path
         .ok_or_else(|| color_eyre::eyre::anyhow!("problem missing checker"))?;
@@ -51,15 +57,46 @@ pub async fn run_algorithm(
         .await?;
     let judge = match judge.compile().await? {
         Ok(judge) => judge,
-        Err(verdict) => return Ok(verdict),
+        Err(verdict) => {
+            return Ok((verdict, Duration::ZERO, Byte::from_u64(0)));
+        }
     };
 
-    let test_cases = prob.test_cases.unwrap_or(vec![]);
-    let metrics = judge
-        .batch_run(test_cases.iter().map(|x| x.as_bytes()))
-        .await?;
+    let mut test_cases = problem::get_test_cases(pool, sub.problem_id);
 
-    Ok(metrics.verdict)
+    let mut transaction = pool.begin().await?;
+    let mut verdict = Verdict::Accepted;
+    let mut run_time = Duration::ZERO;
+    let mut memory_usage = Byte::from_u64(0);
+    while let Some(test_case) = test_cases.try_next().await? {
+        let input = test_case.input.into_bytes();
+
+        let metrics = judge.run(input).await?;
+        verdict = metrics.verdict;
+        run_time = run_time.max(metrics.run_time);
+        memory_usage = memory_usage.max(metrics.memory_usage);
+
+        if let Err(error) = submission::add_detail(
+            &mut *transaction,
+            id,
+            test_case.id,
+            metrics.verdict.into(),
+            metrics.run_time.as_millis() as i32,
+            metrics.memory_usage.as_u64() as i32,
+        )
+        .await
+        {
+            tracing::error!(?error, "failed to save detail");
+            break;
+        }
+
+        if verdict != Verdict::Accepted {
+            break;
+        }
+    }
+    transaction.commit().await?;
+
+    Ok((verdict, run_time, memory_usage))
 }
 
 impl From<repository::model::Language> for code_executor::Language {

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            UPDATE submissions\n            SET\n                verdict = $2,\n                score = $3,\n                updated_at = now()\n            WHERE id = $1\n        ",
+  "query": "\n            UPDATE submissions\n            SET\n                verdict = $2,\n                run_time = $3,\n                memory_usage = $4,\n                score = $5,\n                updated_at = now()\n            WHERE id = $1\n        ",
   "describe": {
     "columns": [],
     "parameters": {
@@ -22,10 +22,12 @@
             }
           }
         },
+        "Int4",
+        "Int4",
         "Float4"
       ]
     },
     "nullable": []
   },
-  "hash": "42052a25107c2bb6675bdc9c9cfddd3d2c386d0e44b6a29745c008305131563c"
+  "hash": "f4ed2be1d084b63526f922020ec65f9adf222a7130dd47cf1bbfc526503f48d3"
 }
